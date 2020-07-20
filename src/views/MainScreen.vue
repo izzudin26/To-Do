@@ -2,7 +2,6 @@
   <div>
     <v-container>
       <v-card>
-        <v-card-body>
           <v-container>
             <v-row>
               <v-col md="6" xl="6" lg="6" sm="12">
@@ -16,7 +15,7 @@
               <v-col md="6" xl="6" lg="6" sm="12">
                 <v-menu
                   ref="menu"
-                  v-model="menu"
+                  v-model="dateMenu"
                   :close-on-content-click="false"
                   transition="scale-transition"
                   offset-y
@@ -43,9 +42,18 @@
               outlined
               rows="2"
             ></v-textarea>
-            <v-btn color="success" elevation="0">{{language == "ID" ? "Buat Pekerjaan" : "Create Task"}}</v-btn>
+            <v-btn color="success" @click="submit" elevation="0">{{language == "ID" ? "Buat Pekerjaan" : "Create Task"}}</v-btn>
           </v-container>
-        </v-card-body>
+      </v-card>
+      <h2 class="mt-5">To Do List</h2>
+      <v-card v-for="(todo, i) in todoList" :key="i" class="mt-2">
+        <v-row class="mt-2 mb-3 ml-4 mr-4 pa-2">
+          <v-hover v-slot:default="{ hover }">
+            <v-btn icon x-small :color=" hover ? 'success' : 'grey'">
+            <v-icon>fa-check</v-icon>
+          </v-btn>
+          </v-hover>
+        </v-row>
       </v-card>
     </v-container>
   </div>
@@ -55,14 +63,6 @@
 export default {
   name: 'MainScreen',
   computed: {
-    todoList () {
-      const todoStorage = localStorage.getItem('todoItem')
-      if (todoStorage == null) {
-        return []
-      } else {
-        return todoStorage
-      }
-    },
     dateFormatter () {
       const dates = this.todoDueDate ?? new Date().toString().substr(0, 10)
       const setting = {
@@ -75,14 +75,41 @@ export default {
     }
   },
   data: () => ({
+    todoList: [],
     dateMenu: false,
     todoTitle: '',
     todoDueDate: new Date().toISOString().substr(0, 10),
     todoDescription: '',
     language: 'ID'
-  })
+  }),
+  mounted () {
+    this.todoListget()
+  },
+  methods: {
+    todoListget () {
+      const todoStorage = localStorage.getItem('todoItem')
+      if (todoStorage == null) {
+        this.todoList = []
+      } else {
+        this.todoList = JSON.parse(todoStorage)
+      }
+    },
+    async submit () {
+      const list = this.todoList
+      list.push({
+        title: this.todoTitle,
+        dueDate: this.todoDueDate,
+        description: this.todoDescription
+      })
+      localStorage.setItem('todoItem', JSON.stringify(list))
+      this.todoList = list
+      // await this.$nextTick()
+      console.log(this.todoList)
+    }
+  }
 }
 </script>
 
 <style>
+
 </style>
