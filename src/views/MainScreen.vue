@@ -42,7 +42,7 @@
       <h2 class="mt-5">To Do List</h2>
       <transition-group name="fade">
       <v-card v-for="(todo, i) in todoList" :key="i" class="mt-2" outlined>
-        <v-row class="mt-2 mb-2 ml-3 mr-3 pa-1">
+        <v-row class="mt-2 mb-2 ml-2 mr-2 pa-1">
           <v-hover v-slot:default="{ hover }" v-for="(btn,idx) in buttonStyle" :key="idx">
             <v-btn
             class="ml-4"
@@ -56,6 +56,25 @@
           <span class="ml-5">{{todo.title}}</span>
           <v-spacer></v-spacer>
           <b>{{ dateFormat(todo.dueDate) }}</b>
+        </v-row>
+      </v-card>
+      </transition-group>
+      <h2 class="mt-5">Complete</h2>
+      <transition-group name="fade">
+      <v-card v-for="(todo, i) in todoComplete" :key="i" class="mt-2" outlined>
+        <v-row class="mt-2 mb-2 ml-2 mr-2 pa-1">
+          <v-hover v-slot:default="{ hover }" v-for="(btn,idx) in buttonStyle" :key="idx">
+            <v-btn
+            class="ml-4"
+            icon
+            x-small
+            :color=" btn.icon == 'fa-check' ? btn.color : 'grey'">
+            <v-icon>{{btn.icon}}</v-icon>
+          </v-btn>
+          </v-hover>
+          <span class="ml-5">{{todo.title}}</span>
+          <v-spacer></v-spacer>
+          <b>{{ dateFormat(todo.dueDate)}}</b>
         </v-row>
       </v-card>
       </transition-group>
@@ -84,8 +103,8 @@ export default {
     todoTitle: '',
     todoDueDate: new Date().toISOString().substr(0, 10),
     language: 'ID',
-    todoDone: [],
-    todoNotDone: [],
+    todoComplete: [],
+    todoUncomplete: [],
     buttonStyle: [
       {
         icon: 'fa-check',
@@ -95,7 +114,7 @@ export default {
       {
         icon: 'fa-times',
         color: 'red',
-        func: 'complete'
+        func: 'uncomplete'
       },
       {
         icon: 'fa-pencil-alt',
@@ -111,6 +130,7 @@ export default {
   }),
   mounted () {
     this.todoListget()
+    this.todoCompleteGet()
   },
   methods: {
     dateFormat (value) {
@@ -125,18 +145,32 @@ export default {
     },
     handleBtn (func, idxVal) {
       switch (func) {
-        case 'done':
-
+        case 'complete':
+          this.handleComplete(idxVal)
           break
+
         case 'notDone':
-
           break
+
         case 'edit':
-
           break
+
         case 'delete':
           this.delete(idxVal)
           break
+      }
+    },
+    handleComplete (idxValue) {
+      this.todoComplete.push(this.todoList[idxValue])
+      this.todoList.splice(idxValue, 1)
+      localStorage.setItem('todoItem', JSON.stringify(this.todoList))
+      console.log(this.todoComplete)
+      localStorage.setItem('todoComplete', JSON.stringify(this.todoComplete))
+    },
+    async todoCompleteGet () {
+      const getData = await localStorage.getItem('todoComplete')
+      if (getData != null) {
+        this.todoComplete = JSON.parse(getData)
       }
     },
     todoListget () {
@@ -148,16 +182,13 @@ export default {
       }
     },
     submit () {
-      const list = this.todoList
-      list.push({
+      this.todoList.push({
         title: this.todoTitle,
         dueDate: this.todoDueDate
       })
-      localStorage.setItem('todoItem', JSON.stringify(list))
-      this.todoList = list
+      localStorage.setItem('todoItem', JSON.stringify(this.todoList))
       this.todoTitle = ''
       this.todoDueDate = new Date().toISOString().substr(0, 10)
-      this.todoDescription = ''
     },
     delete (index) {
       this.todoList.splice(index, 1)
