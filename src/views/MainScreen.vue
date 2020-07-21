@@ -36,25 +36,29 @@
                 </v-menu>
               </v-col>
             </v-row>
-            <v-textarea
-              :label="language == 'ID' ? 'Deskripsi' : 'Description'"
-              v-model="todoDescription"
-              outlined
-              rows="2"
-            ></v-textarea>
             <v-btn color="success" @click="submit" elevation="0">{{language == "ID" ? "Buat Pekerjaan" : "Create Task"}}</v-btn>
           </v-container>
       </v-card>
       <h2 class="mt-5">To Do List</h2>
-      <v-card v-for="(todo, i) in todoList" :key="i" class="mt-2">
-        <v-row class="mt-2 mb-3 ml-4 mr-4 pa-2">
-          <v-hover v-slot:default="{ hover }">
-            <v-btn icon x-small :color=" hover ? 'success' : 'grey'">
-            <v-icon>fa-check</v-icon>
+      <transition-group name="fade">
+      <v-card v-for="(todo, i) in todoList" :key="i" class="mt-2" outlined>
+        <v-row class="mt-2 mb-2 ml-3 mr-3 pa-1">
+          <v-hover v-slot:default="{ hover }" v-for="(btn,idx) in buttonStyle" :key="idx">
+            <v-btn
+            class="ml-4"
+            icon
+            x-small
+            :color=" hover ? btn.color : 'grey'"
+            @click="handleBtn(btn.func, i)">
+            <v-icon>{{btn.icon}}</v-icon>
           </v-btn>
           </v-hover>
+          <span class="ml-5">{{todo.title}}</span>
+          <v-spacer></v-spacer>
+          <b>{{ dateFormat(todo.dueDate) }}</b>
         </v-row>
       </v-card>
+      </transition-group>
     </v-container>
   </div>
 </template>
@@ -79,13 +83,62 @@ export default {
     dateMenu: false,
     todoTitle: '',
     todoDueDate: new Date().toISOString().substr(0, 10),
-    todoDescription: '',
-    language: 'ID'
+    language: 'ID',
+    todoDone: [],
+    todoNotDone: [],
+    buttonStyle: [
+      {
+        icon: 'fa-check',
+        color: 'success',
+        func: 'complete'
+      },
+      {
+        icon: 'fa-times',
+        color: 'red',
+        func: 'complete'
+      },
+      {
+        icon: 'fa-pencil-alt',
+        color: 'yellow',
+        func: 'edit'
+      },
+      {
+        icon: 'fa-trash',
+        color: 'error',
+        func: 'delete'
+      }
+    ]
   }),
   mounted () {
     this.todoListget()
   },
   methods: {
+    dateFormat (value) {
+      const date = new Date(value).toISOString().substr(0, 10)
+      const setting = {
+        day: 'numeric',
+        weekday: 'long',
+        month: 'long',
+        year: 'numeric'
+      }
+      return new Date(date).toLocaleDateString(this.language, setting)
+    },
+    handleBtn (func, idxVal) {
+      switch (func) {
+        case 'done':
+
+          break
+        case 'notDone':
+
+          break
+        case 'edit':
+
+          break
+        case 'delete':
+          this.delete(idxVal)
+          break
+      }
+    },
     todoListget () {
       const todoStorage = localStorage.getItem('todoItem')
       if (todoStorage == null) {
@@ -94,22 +147,34 @@ export default {
         this.todoList = JSON.parse(todoStorage)
       }
     },
-    async submit () {
+    submit () {
       const list = this.todoList
       list.push({
         title: this.todoTitle,
-        dueDate: this.todoDueDate,
-        description: this.todoDescription
+        dueDate: this.todoDueDate
       })
       localStorage.setItem('todoItem', JSON.stringify(list))
       this.todoList = list
-      // await this.$nextTick()
-      console.log(this.todoList)
+      this.todoTitle = ''
+      this.todoDueDate = new Date().toISOString().substr(0, 10)
+      this.todoDescription = ''
+    },
+    delete (index) {
+      this.todoList.splice(index, 1)
+      localStorage.setItem('todoItem', JSON.stringify(this.todoList))
     }
   }
 }
 </script>
 
 <style>
-
+.date{
+  color: "#";
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 </style>
