@@ -36,9 +36,11 @@
                 </v-menu>
               </v-col>
             </v-row>
-            <v-btn color="success" @click="submit" elevation="0">{{language == "ID" ? "Buat Pekerjaan" : "Create Task"}}</v-btn>
+            <v-btn v-if="isUpdate" color="primary" @click="handleUpdate" elevation="0">{{language == "ID" ? "Simpan" : "Save"}}</v-btn>
+            <v-btn v-else color="success" @click="submit" elevation="0">{{language == "ID" ? "Buat Pekerjaan" : "Create Task"}}</v-btn>
           </v-container>
       </v-card>
+      <v-banner>
       <h2 class="mt-5">To Do List</h2>
       <transition-group name="fade">
       <v-card v-for="(todo, i) in todoList" :key="i" class="mt-2" outlined>
@@ -59,6 +61,8 @@
         </v-row>
       </v-card>
       </transition-group>
+      </v-banner>
+      <v-banner>
       <h2 class="mt-5">Complete</h2>
       <transition-group name="fade">
       <v-card v-for="(todo, i) in todoComplete" :key="i" class="mt-2" outlined>
@@ -78,6 +82,29 @@
         </v-row>
       </v-card>
       </transition-group>
+      </v-banner>
+      <v-banner>
+
+      <h2 class="mt-5">uncomplete</h2>
+      <transition-group name="fade">
+      <v-card v-for="(todo, i) in todoUncomplete" :key="i" class="mt-2" outlined>
+        <v-row class="mt-2 mb-2 ml-2 mr-2 pa-1">
+          <v-hover v-slot:default="{ hover }" v-for="(btn,idx) in buttonStyle" :key="idx">
+            <v-btn
+            class="ml-4"
+            icon
+            x-small
+            :color=" btn.icon == 'fa-times' ? btn.color : 'grey'">
+            <v-icon>{{btn.icon}}</v-icon>
+          </v-btn>
+          </v-hover>
+          <span class="ml-5">{{todo.title}}</span>
+          <v-spacer></v-spacer>
+          <b>{{ dateFormat(todo.dueDate)}}</b>
+        </v-row>
+      </v-card>
+      </transition-group>
+      </v-banner>
     </v-container>
   </div>
 </template>
@@ -100,6 +127,8 @@ export default {
   data: () => ({
     todoList: [],
     dateMenu: false,
+    isUpdate: false,
+    indexUpdate: null,
     todoTitle: '',
     todoDueDate: new Date().toISOString().substr(0, 10),
     language: 'ID',
@@ -131,6 +160,7 @@ export default {
   mounted () {
     this.todoListget()
     this.todoCompleteGet()
+    this.todoUncompleteGet()
   },
   methods: {
     dateFormat (value) {
@@ -149,10 +179,12 @@ export default {
           this.handleComplete(idxVal)
           break
 
-        case 'notDone':
+        case 'uncomplete':
+          this.handleUncomplete(idxVal)
           break
 
         case 'edit':
+          this.handleEdit(idxVal)
           break
 
         case 'delete':
@@ -160,18 +192,44 @@ export default {
           break
       }
     },
+    handleUpdate () {
+      this.todoList[this.indexUpdate] = {
+        title: this.todoTitle,
+        dueDate: this.todoDueDate
+      }
+      this.todoTitle = ''
+      this.todoDueDate = new Date().toISOString().substr(0, 10)
+      this.isUpdate = false
+      this.indexUpdate = null
+      localStorage.setItem('todoItem', JSON.stringify(this.todoList))
+    },
+    handleEdit (index) {
+      this.todoTitle = this.todoList[index].title
+      this.todoDueDate = this.todoList[index].dueDate
+      this.isUpdate = true
+      this.indexUpdate = index
+    },
     handleComplete (idxValue) {
       this.todoComplete.push(this.todoList[idxValue])
       this.todoList.splice(idxValue, 1)
       localStorage.setItem('todoItem', JSON.stringify(this.todoList))
-      console.log(this.todoComplete)
       localStorage.setItem('todoComplete', JSON.stringify(this.todoComplete))
+    },
+    handleUncomplete (idxValue) {
+      this.todoUncomplete.push(this.todoList[idxValue])
+      this.todoList.splice(idxValue, 1)
+      localStorage.setItem('todoItem', JSON.stringify(this.todoList))
+      localStorage.setItem('todoUncomplete', JSON.stringify(this.todoUncomplete))
     },
     async todoCompleteGet () {
       const getData = await localStorage.getItem('todoComplete')
       if (getData != null) {
         this.todoComplete = JSON.parse(getData)
       }
+    },
+    async todoUncompleteGet () {
+      const data = await localStorage.getItem('todoUncomplete')
+      if (data != null) { this.todoUncomplete = JSON.parse(data) }
     },
     todoListget () {
       const todoStorage = localStorage.getItem('todoItem')
