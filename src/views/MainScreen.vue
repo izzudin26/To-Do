@@ -40,7 +40,7 @@
             <v-btn v-else color="success" @click="submit" elevation="0">{{language == "ID" ? "Buat Pekerjaan" : "Create Task"}}</v-btn>
           </v-container>
       </v-card>
-      <v-banner>
+      <v-banner v-if="todoList.length != 0">
       <h2 class="mt-5">To Do List</h2>
       <transition-group name="fade">
       <v-card v-for="(todo, i) in todoList" :key="i" class="mt-2" outlined>
@@ -62,7 +62,7 @@
       </v-card>
       </transition-group>
       </v-banner>
-      <v-banner>
+      <v-banner v-if="todoComplete.length != 0">
       <h2 class="mt-5">Complete</h2>
       <transition-group name="fade">
       <v-card v-for="(todo, i) in todoComplete" :key="i" class="mt-2" outlined>
@@ -83,8 +83,7 @@
       </v-card>
       </transition-group>
       </v-banner>
-      <v-banner>
-
+      <v-banner v-if="todoUncomplete.length != 0">
       <h2 class="mt-5">uncomplete</h2>
       <transition-group name="fade">
       <v-card v-for="(todo, i) in todoUncomplete" :key="i" class="mt-2" outlined>
@@ -106,6 +105,7 @@
       </transition-group>
       </v-banner>
     </v-container>
+
   </div>
 </template>
 
