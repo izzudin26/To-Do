@@ -1,24 +1,4 @@
-# mytodolist
+## Vue-My Todo
+its simple Web Application to save your todo list using VUEJS and VUETIFY as User Interface, and Local Storage with Reactivity for manage user data
 
-## Project setup
-```
-yarn install
-```
-
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+visit this [Github Pages](https://izzudin26.github.io/todo/)
