@@ -8,7 +8,7 @@
                 <v-text-field
                   outlined
                   v-model="todoTitle"
-                  :label="language == 'ID' ? 'Judul' : 'title'"
+                  :label="languages == 'INDONESIA' ? 'Judul' : 'title'"
                   append-icon="fa-edit"
                 ></v-text-field>
               </v-col>
@@ -24,7 +24,7 @@
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
                       v-model="dateFormatter"
-                      :label="language == 'ID' ? 'Batas waktu' : 'Due Date'"
+                      :label="languages == 'INDONESIA' ? 'Batas waktu' : 'Due Date'"
                       readonly
                       outlined
                       append-icon="fa-calendar"
@@ -32,12 +32,12 @@
                       v-on="on"
                     ></v-text-field>
                   </template>
-                  <v-date-picker v-model="todoDueDate" @input="dateMenu = false" :locale="language"></v-date-picker>
+                  <v-date-picker v-model="todoDueDate" @input="dateMenu = false"></v-date-picker>
                 </v-menu>
               </v-col>
             </v-row>
-            <v-btn v-if="isUpdate" color="primary" @click="handleUpdate" elevation="0">{{language == "ID" ? "Simpan" : "Save"}}</v-btn>
-            <v-btn v-else color="success" @click="submit" elevation="0">{{language == "ID" ? "Buat Pekerjaan" : "Create Task"}}</v-btn>
+            <v-btn v-if="isUpdate" color="primary" @click="handleUpdate" elevation="0">{{languages == "INDONESIA" ? "Simpan" : "Save"}}</v-btn>
+            <v-btn v-else color="success" @click="submit" elevation="0">{{languages == "INDONESIA" ? "Buat Pekerjaan" : "Create Task"}}</v-btn>
           </v-container>
       </v-card>
       <v-banner v-if="todoList.length != 0">
@@ -112,8 +112,10 @@
 <script>
 export default {
   name: 'MainScreen',
+  props: ['languages'],
   computed: {
     dateFormatter () {
+      const lang = this.languages === 'INDONESIA' ? 'ID' : 'EN'
       const dates = this.todoDueDate ?? new Date().toString().substr(0, 10)
       const setting = {
         day: 'numeric',
@@ -121,7 +123,7 @@ export default {
         month: 'long',
         year: 'numeric'
       }
-      return new Date(dates).toLocaleDateString(this.language, setting)
+      return new Date(dates).toLocaleDateString(lang, setting)
     }
   },
   data: () => ({
@@ -131,7 +133,6 @@ export default {
     indexUpdate: null,
     todoTitle: '',
     todoDueDate: new Date().toISOString().substr(0, 10),
-    language: 'ID',
     todoComplete: [],
     todoUncomplete: [],
     buttonStyle: [
@@ -164,6 +165,7 @@ export default {
   },
   methods: {
     dateFormat (value) {
+      const lang = this.languages === 'INDONESIA' ? 'ID' : 'EN'
       const date = new Date(value).toISOString().substr(0, 10)
       const setting = {
         day: 'numeric',
@@ -171,7 +173,7 @@ export default {
         month: 'long',
         year: 'numeric'
       }
-      return new Date(date).toLocaleDateString(this.language, setting)
+      return new Date(date).toLocaleDateString(lang, setting)
     },
     handleBtn (func, idxVal) {
       switch (func) {
@@ -257,9 +259,7 @@ export default {
 </script>
 
 <style>
-.date{
-  color: "#";
-}
+
 .fade-enter-active, .fade-leave-active {
   transition: opacity .5s;
 }

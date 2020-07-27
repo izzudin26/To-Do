@@ -1,12 +1,48 @@
 <template>
   <v-app>
+     <v-dialog v-model="dialog" persistent max-width="600px">
+      <v-card>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+                <v-text-field label="Your Name" v-model="name" required></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="dialog = false">Close</v-btn>
+          <v-btn color="blue darken-1" text @click="submitName">SUBMIT</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="dialogLanguage" persistent max-width="600px">
+      <v-card>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12">
+               <v-select append-icon="fa-language" v-model="language" :items="['INDONESIA', 'ENGLISH']"></v-select>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="dialogLanguage = false">Close</v-btn>
+          <v-btn color="blue darken-1" text @click="submitLang">SUBMIT</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-navigation-drawer
       v-model="drawer"
       app
     >
-      <v-list dense>
-        <v-banner single-line>
-        <v-list-item>
+    <template v-slot:prepend>
+        <v-list-item two-line>
+          <v-list-item-avatar>
             <svg version="1.1" height="2em" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
     viewBox="0 0 496.158 496.158" style="enable-background:new 0 0 496.158 496.158;" xml:space="preserve">
   <path style="fill:#337180;" d="M248.082,0.003C111.07,0.003,0,111.063,0,248.085c0,137.001,111.07,248.07,248.082,248.07
@@ -117,22 +153,29 @@
   <g>
   </g>
   </svg>
-        </v-list-item>
-        </v-banner>
-        <v-list-item link>
-          <v-list-item-action>
-            <v-icon>fa-home</v-icon>
-          </v-list-item-action>
+          </v-list-item-avatar>
+
           <v-list-item-content>
-            <v-list-item-title>Home</v-list-item-title>
+            <v-list-item-title>{{name}}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item link>
+      </template>
+      <v-divider></v-divider>
+      <v-list dense>
+        <v-list-item @click="dialog = !dialog">
           <v-list-item-action>
-            <v-icon>mdi-email</v-icon>
+            <v-icon>fa-user</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>Contact</v-list-item-title>
+            <v-list-item-title>Change username</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item @click="dialogLanguage = !dialogLanguage">
+          <v-list-item-action>
+            <v-icon>fa-language</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Language</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -147,8 +190,7 @@
       <v-toolbar-title>My Todo</v-toolbar-title>
     </v-app-bar>
     <v-content>
-      <MainScreen/>
-
+      <MainScreen v-bind:languages="language"/>
     </v-content>
 
   </v-app>
@@ -164,7 +206,34 @@ export default {
   },
   data: () => ({
     drawer: true,
-    userName: 'Ahmad'
-  })
+    name: '',
+    dialog: false,
+    dialogLanguage: false,
+    language: 'INDONESIA'
+  }),
+  async mounted () {
+    const getName = await localStorage.getItem('username')
+    if (getName == null) {
+      this.dialog = true
+    } else {
+      this.dialog = false
+      this.name = getName
+    }
+
+    const getLang = await localStorage.getItem('language')
+    if (getLang != null) {
+      this.language = getLang
+    }
+  },
+  methods: {
+    submitName () {
+      localStorage.setItem('username', this.name)
+      this.dialog = false
+    },
+    submitLang () {
+      localStorage.setItem('language', this.language)
+      this.dialogLanguage = false
+    }
+  }
 }
 </script>
